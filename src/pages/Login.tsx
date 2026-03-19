@@ -13,16 +13,43 @@ const loginSchema = yup.object({
   password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
 });
 
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../api/firebase';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { setLoading, setError, loading, error } = useAuthStore();
   
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(loginSchema),
   });
+
+  const handleDemoLogin = async () => {
+    setLoading(true);
+    setError(null);
+    const demoEmail = 'test@gmail.com';
+    const demoPass = '123456';
+    
+    try {
+      // Attempt sign-in
+      await signInWithEmailAndPassword(auth, demoEmail, demoPass);
+      navigate('/');
+    } catch (err: any) {
+      // If user not found, create it for the demo
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+        try {
+          await createUserWithEmailAndPassword(auth, demoEmail, demoPass);
+          navigate('/');
+        } catch (signUpErr: any) {
+          setError('Demo initialization failed. Please contact support.');
+        }
+      } else {
+        setError('Login failed. Please check your network or try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onSubmit = async (data: any) => {
     setLoading(true);
@@ -166,18 +193,16 @@ const LoginPage: React.FC = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    setValue('email', 'test@gmail.com');
-                    setValue('password', '123456');
-                  }}
+                  onClick={handleDemoLogin}
                   className="w-full flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:border-blue-400 hover:shadow-sm transition-all text-left group"
+                  disabled={loading}
                 >
                   <div className="space-y-0.5">
                     <p className="text-xs font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Test Account</p>
                     <p className="text-[11px] text-slate-500">test@gmail.com / 123456</p>
                   </div>
                   <div className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
-                    AUTOFILL
+                    LOGIN
                   </div>
                 </button>
               </div>
