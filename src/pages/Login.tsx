@@ -13,9 +13,12 @@ const loginSchema = yup.object({
   password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
 });
 
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../api/firebase';
+
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { setUser, setLoading, setError, loading, error } = useAuthStore();
+  const { setLoading, setError, loading, error } = useAuthStore();
   
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(loginSchema),
@@ -23,20 +26,34 @@ const LoginPage: React.FC = () => {
 
   const onSubmit = async (data: any) => {
     setLoading(true);
-    // In a real app, you would use signInWithEmailAndPassword(auth, data.email, data.password)
-    // Mock login for demo purposes
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    setError(null);
     
-    if (data.email === 'admin@healios.com') {
-      setUser({
-        id: '1',
-        email: data.email,
-        displayName: 'Dr. Pushpender Kumar',
-        role: 'admin',
-      });
+    try {
+      await signInWithEmailAndPassword(auth, data.email, data.password);
+      // Navigation is handled automatically by onAuthStateChanged in App.tsx
       navigate('/');
-    } else {
-      setError('Invalid credentials. Use admin@healios.com for demo.');
+    } catch (err: any) {
+      console.error('Login failed:', err);
+      let message = 'Failed to log in. Please check your credentials.';
+      
+      // Detailed error handling for production
+      switch (err.code) {
+        case 'auth/user-not-found':
+          message = 'No account found with this email.';
+          break;
+        case 'auth/wrong-password':
+          message = 'Incorrect password. Please try again.';
+          break;
+        case 'auth/invalid-email':
+          message = 'The email address is invalid.';
+          break;
+        case 'auth/too-many-requests':
+          message = 'Too many failed attempts. Try again later.';
+          break;
+      }
+      
+      setError(message);
+    } finally {
       setLoading(false);
     }
   };

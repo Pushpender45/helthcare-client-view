@@ -28,21 +28,33 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return <AppLayout>{children}</AppLayout>;
 };
 
+import { auth } from './api/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+
 const App: React.FC = () => {
-  const { setAuthenticated, setLoading } = useAuthStore();
+  const { setUser, setLoading } = useAuthStore();
 
   useEffect(() => {
-    // Simulated auth check
-    const checkAuth = async () => {
+    // Listen for real-time auth changes from Firebase
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setLoading(true);
-      const user = localStorage.getItem('user');
-      if (user) {
-        setAuthenticated(true);
+      if (firebaseUser) {
+        // Map Firebase user to our application user type
+        setUser({
+          id: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          displayName: firebaseUser.displayName || 'Healthcare Professional',
+          role: 'admin', // Default role for demo
+        });
+      } else {
+        setUser(null);
       }
       setLoading(false);
-    };
-    checkAuth();
-  }, [setAuthenticated, setLoading]);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [setUser, setLoading]);
 
   return (
     <BrowserRouter>
