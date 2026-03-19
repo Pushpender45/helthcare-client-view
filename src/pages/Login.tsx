@@ -20,7 +20,7 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { setLoading, setError, loading, error } = useAuthStore();
   
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
     resolver: yupResolver(loginSchema),
   });
 
@@ -156,6 +156,30 @@ const LoginPage: React.FC = () => {
 
               <div className="text-center text-sm text-slate-500">
                 Don't have an account? <a href="#" className="font-bold text-blue-600 hover:underline">Contact your IT admin</a>
+              </div>
+
+              {/* Demo Credentials */}
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                  <div className="size-1.5 rounded-full bg-blue-600 animate-pulse" />
+                  Quick Access Demo
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setValue('email', 'test@gmail.com');
+                    setValue('password', '123456');
+                  }}
+                  className="w-full flex items-center justify-between p-3 bg-white border border-slate-200 rounded-xl hover:border-blue-400 hover:shadow-sm transition-all text-left group"
+                >
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Test Account</p>
+                    <p className="text-[11px] text-slate-500">test@gmail.com / 123456</p>
+                  </div>
+                  <div className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                    AUTOFILL
+                  </div>
+                </button>
               </div>
             </div>
           </div>
