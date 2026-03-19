@@ -27,7 +27,7 @@ const LoginPage: React.FC = () => {
   const handleDemoLogin = async () => {
     setLoading(true);
     setError(null);
-    const demoEmail = 'test@gmail.com';
+    const demoEmail = 'test12@gmail.com';
     const demoPass = '123456';
     
     try {
@@ -199,7 +199,7 @@ const LoginPage: React.FC = () => {
                 >
                   <div className="space-y-0.5">
                     <p className="text-xs font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Test Account</p>
-                    <p className="text-[11px] text-slate-500">test@gmail.com / 123456</p>
+                    <p className="text-[11px] text-slate-500">test12@gmail.com / 123456</p>
                   </div>
                   <div className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
                     LOGIN
